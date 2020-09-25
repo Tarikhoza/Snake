@@ -1,214 +1,155 @@
-#include<iostream>
-#include<Windows.h>
-#include<conio.h>
-#include <cstdlib> 
-#include <ctime> 
-
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+#include <Windows.h>
+#include <conio.h>
 using namespace std;
 
-void recombine(int posx[1000],int posy[1000],char &a,int &posX,int &posY,int &lastX,int &lastY,char &b,int rex[1000],int rey[1000]){
-	posx[0]=posX;
-	posy[0]=posY;
-for(int i=0;i<1000;i++){
+int maxx = 60;
+int maxy = 100;
 
-	rex[i]=posx[i];
-	rey[i]=posy[i];
-}
-	
-	for(int j=0;j<1000;j++){
-	posx[j]=rex[j-1];
-	posy[j]=rey[j-1];	
-	}
-	
-}
+class position {
+ public:
+  int x = 0;
+  int y = 0;
+};
 
-void lose(int posX,int posY,int len,int posx[1000],int posy[1000]){
-	if(posX<=0 or posY<=0 or posX>=19 or posY>=49  ){
-		system("cls");
-	cout<<"Your score is:"<<len-1<<endl;	
-	getch();
-		exit(0);
-	}
-	for(int i=1;i<len;i++){
-		if(posX==posx[i] and posY==posy[i]){
-		system("cls");
-	cout<<"Your score is:"<<len-1<<endl;	
-	getch();
-		exit(0);	
-		}
-	}
-}
+class bodyPart {
+ public:
+  position pos;
+  bodyPart(int posx, int posy) {
+    pos.x = posx;
+    pos.y = posy;
+  }
+};
 
-void control(int posx[1000],int posy[1000],char &a,int &posX,int &posY,int &lastX,int &lastY,char &b){
-	if(_kbhit()){
-		a=getch();
-		if(a=='w' or a=='a' or a=='s' or a=='d'){
-			if(a=='w' and b!='s'){
-				b=a;
-			}	
-			if(a=='a' and b!='d'){
-				b=a;
-			}
-			if(a=='s' and b!='w'){
-				b=a;
-			}
-			if(a=='d' and b!='a'){
-				b=a;
-			}		
-}
-		
-	if(b=='w'){
-		lastY=posY;
-		lastX=posX;
-		posX--;
-	}
-	
-	if(b=='d'){
-		lastY=posY;
-		lastX=posX;
-		posY++;
-	}
-	
-	if(b=='a'){
-		lastY=posY;
-		lastX=posX;
-		posY--;
-	}
-	
-	if(b=='s'){
-		lastY=posY;
-		lastX=posX;
-		posX++;
-	}
-	}
-	else{
-		if(b=='w'){
-		lastY=posY;
-		lastX=posX;
-		posX--;
-	}
-	
-	if(b=='d'){
-		lastY=posY;
-		lastX=posX;
-		posY++;
-	}
-	
-	if(b=='a'){
-		lastY=posY;
-		lastX=posX;
-		posY--;
-	}
-	
-	if(b=='s'){
-		lastY=posY;
-		lastX=posX;
-		posX++;
-	}
-	}	
-}
-	
-	
-	
-	
-	
+class apple {
+ public:
+  position pos;
+  void setPosition() {
+    pos.x = rand() % (maxx - 2) + 1;
+    pos.y = rand() % (maxy - 2) + 1;
+  }
 
+  apple() { setPosition(); }
+};
 
+class snake {
+ public:
+  int len = 1;
+  char direction = 'w';
+  char lastDirection = 'a';
+  bool alive = true;
+  vector<bodyPart> body;
 
-void matrix(int pos[1000]){
-	for(int i=0;i<1000;i++){
-		pos[i]=255;
-	}
-}
-	
+  snake() { body.emplace_back(bodyPart(20, 20)); }
 
+  void move() {
+    if (direction == 'w') {
+      body.insert(body.begin(), bodyPart(body[0].pos.x - 1, body[0].pos.y));
+      if (len == body.size() - 1) body.erase(body.begin() + body.size() - 1);
+    } else if (direction == 'a') {
+      body.insert(body.begin(), bodyPart(body[0].pos.x, body[0].pos.y - 1));
+      if (len == body.size() - 1) body.erase(body.begin() + body.size() - 1);
+    } else if (direction == 's') {
+      body.insert(body.begin(), bodyPart(body[0].pos.x + 1, body[0].pos.y));
+      if (len == body.size() - 1) body.erase(body.begin() + body.size() - 1);
+    } else if (direction == 'd') {
+      body.insert(body.begin(), bodyPart(body[0].pos.x, body[0].pos.y + 1));
+      if (len == body.size() - 1) body.erase(body.begin() + body.size() - 1);
+    }
+  }
 
+  bool eat(apple Apple) {
+    if (Apple.pos.x == body[0].pos.x and Apple.pos.y == body[0].pos.y) {
+      len++;
+      return 1;
+    }
+    return 0;
+  }
 
-void construct(char M[20][50],int posx[1000],int posy[1000],int posX,int posY,int foodX,int foodY,int len,int &lastX,int &lastY){
-	for(int i=0;i<20;i++){
-		for(int j=0;j<50;j++){
-			if(i==0 or i==19 or j==0 or j==49){
-				M[i][j]='#';
-			}
-			else if(foodX==i and foodY==j){
-				M[i][j]='!';
-			}
-			else if(i==posX and j==posY){
-				M[i][j]='O';
-			}
-			else{	
-				M[i][j]=' ';
-			}
-			for(int k=0;k<len;k++){
-				if(i==posx[k] and j==posy[k] and posx[k]<255 and posy[k]<255){
-					M[i][j]='o';
-					}
-			}
-				
-		}
-	}
-}
-	
+  void lose() {
+    if (body[0].pos.x <= 0 or body[0].pos.x >= maxx - 1) {
+      alive = false;
+    }
+    if (body[0].pos.y <= 0 or body[0].pos.y >= maxy - 1) {
+      alive = false;
+    }
+    for (int i = 0; i < body.size(); i++) {
+      for (int j = 0; j < body.size(); j++) {
+        if (i != j) {
+          if (body[i].pos.x == body[j].pos.x and
+              body[i].pos.y == body[j].pos.y) {
+            alive = false;
+            break;
+            break;
+          }
+        }
+      }
+    }
+  }
 
-void eat(int posX,int posY,int &foodX,int &foodY,int &len){
-	if(posX==foodX and posY==foodY){
-			len=len+1;
-			srand((unsigned)time(0)); 	
-			foodY= (rand()%47)+1;
-			srand((unsigned)time(0)); 	
-			foodX= (rand()%17)+1;
-			if(foodY<1 or foodY>49 or foodX<1 or foodX>19){
-				srand((unsigned)time(0)); 	
-				foodY= (rand()%47)+1;
-				srand((unsigned)time(0)); 	
-				foodX= (rand()%17)+1;
-		}
-	}
+  void changeDirection(char newDirection) {
+    if (newDirection == 'w' or newDirection == 'a' or newDirection == 's' or
+        newDirection == 'd') {
+      if (direction == 'w' and newDirection != 's')
+        direction = newDirection;
+      else if (direction == 's' and newDirection != 'w')
+        direction = newDirection;
+      else if (direction == 'a' and newDirection != 'd')
+        direction = newDirection;
+      else if (direction == 'd' and newDirection != 'a')
+        direction = newDirection;
+    }
+  }
+
+  void control() {
+    if (kbhit()) changeDirection(getch());
+  }
+};
+
+void printDisplay(snake Snake, apple Apple) {
+  char print = ' ';
+  system("cls");
+  for (int i = 0; i < maxx; i++) {
+    for (int j = 0; j < maxy; j++) {
+      print = ' ';
+      for (auto b : Snake.body) {
+        if (b.pos.x == i and b.pos.y == j) {
+          print = 'O';
+          break;
+        }
+      }
+      if (Apple.pos.x == i and Apple.pos.y == j) print = '@';
+      if (i == 0 or i == maxx - 1 or j == 0 or j == maxy - 1) print = '#';
+      cout << print;
+    }
+    cout << endl;
+  }
+  Sleep(120);
 }
 
-
-void print(char M[20][50],int len,int posx[1000],int posy[1000],int posX,int posY){
-	system("cls");
-	for(int i=0;i<20;i++){
-		for(int j=0;j<50;j++){
-			cout<<M[i][j];
-		}
-		cout<<endl;
-	}
-	Sleep(120);
+void game() {
+  snake Snake;
+  Snake.len = 1;
+  apple Apple;
+  srand(time(0));
+  cin.get();
+  while (Snake.alive) {
+    printDisplay(Snake, Apple);
+    cout << Apple.pos.x << " " << Apple.pos.y << endl;
+    Snake.move();
+    Snake.lose();
+    if (Snake.eat(Apple)) {
+      Apple.setPosition();
+    }
+    Snake.control();
+  }
+  cout << "Your score is " << Snake.len << endl;
 }
 
-int main(){
-	system("Color 0A");
-	srand((unsigned)time(0)); 	
-	
-	int posX=10;
-	int posY=25;
-	int posx[1000];
-	int posy[1000];
-	int lastX;
-	int lastY;
-	int rex[1000];
-	int rey[1000];
-	int len=1;
-	int foodY= (rand()%50)+1;
-	int foodX= (rand()%20)+1;
-	char M[20][50];
-	char a;
-	char b='w';
-
-	matrix(posx);
-	matrix(posy);
-
-	cout<<"You control the snake with 'w','a','s','d'.\n\nPRESS ANY KEY TO CONTINUE"<<endl;
-	getch();
-
-	while (true){
-		construct(M,posx,posy,posX,posY,foodX,foodY,len,lastX,lastY);
-		print(M,len,posx,posy,posX,posY);	
-		recombine(posx,posy,a,posX,posY,lastX,lastY,b,rex,rey);
-		control(posx,posy,a,posX,posY,lastX,lastY,b);
-		eat(posX,posY,foodX,foodY,len);
-		lose(posX,posY,len,posx,posy);
-	}
+int main() {
+  cout.sync_with_stdio(false);
+  game();
 }
