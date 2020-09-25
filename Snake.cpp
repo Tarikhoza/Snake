@@ -6,8 +6,8 @@
 #include <conio.h>
 using namespace std;
 
-int maxx = 60;
-int maxy = 100;
+int maxx = 40;
+int maxy = 40;
 
 class position {
  public:
@@ -43,7 +43,7 @@ class snake {
   bool alive = true;
   vector<bodyPart> body;
 
-  snake() { body.emplace_back(bodyPart(20, 20)); }
+  snake() { body.emplace_back(bodyPart((int)maxx/2, (int)maxy/2)); }
 
   void move() {
     if (direction == 'w') {
@@ -138,7 +138,6 @@ void game() {
   cin.get();
   while (Snake.alive) {
     printDisplay(Snake, Apple);
-    cout << Apple.pos.x << " " << Apple.pos.y << endl;
     Snake.move();
     Snake.lose();
     if (Snake.eat(Apple)) {
